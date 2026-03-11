@@ -314,6 +314,12 @@
 
     show('home');
     if(!firebaseReady) setHomeStatus('AI 模式可以直接运行；联机模式需要先把 firebaseConfig 改成你自己的配置。');
+    {
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
   </script>
 </body>
 </html>
