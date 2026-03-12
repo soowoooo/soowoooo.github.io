@@ -178,7 +178,7 @@
     import { getDatabase, ref, set, get, update, onValue, off, remove, runTransaction, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
 
     const firebaseConfig = {
-      apiKey: 'AIzaSyCAx3w0oCrgJHYYQZ-1jYhbmYjxQ9HNRMg',
+apiKey: 'AIzaSyCAx3w0oCrgJHYYQZ-1jYhbmYjxQ9HNRMg',
       authDomain: 'quweimajiang.firebaseapp.com',
       databaseURL: 'https://quweimajiang-default-rtdb.firebaseio.com',
       projectId: 'quweimajiang',
@@ -245,7 +245,7 @@
     function aiPickDiscard(hand){ const map=countMap(hand); const sorted=sortHand(hand); const normal=sorted.filter(t=>!FLOWER_TILES.includes(t)); const flowers=sorted.filter(t=>FLOWER_TILES.includes(t)); const singles=normal.filter(t=>(map[t]||0)===1); const pairs=normal.filter(t=>(map[t]||0)===2); const trips=normal.filter(t=>(map[t]||0)===3); if(singles.length) return singles[0]; if(pairs.length) return pairs[pairs.length-1]; if(trips.length) return trips[0]; if(flowers.length) return flowers[0]; return sorted[sorted.length-1]; }
     function startAiGame(){ state.mode='ai'; state.aiGame=initialGameState(); state.aiGame.log=['开局完成：双方各摸18张牌，由你先行。第2轮开始才可判定胜负。']; renderAiGame(); show('game'); }
     function aiResultText(g){ if(g.winner == null) return '对局中'; if(g.winner===0) return '你获胜'; if(g.winner===1) return 'AI获胜'; if(g.winner==='draw') return '平局'; return '对局中'; }
-    function aiCanClaim(g){ return g.phase==='claim_player' && ((countMap(g.players[0])[g.pendingDiscard]||0)>=2) && g.winner===null; }
+    function aiCanClaim(g){ return g.phase==='claim_player' && ((countMap(g.players[0])[g.pendingDiscard]||0)>=2) && g.winner == null; }
     function aiDraw(){ const g=state.aiGame; if(g.winner != null || g.currentPlayer!==0 || g.phase!=='draw') return; if(g.wall.length===0){ state.aiGame=finishGame(g,settleByScore(g)); return renderAiGame(); } const tile=g.wall[0]; g.players[0]=sortHand([...g.players[0], tile]); g.wall=g.wall.slice(1); g.phase='discard'; g.log=appendLog(g.log, `你摸到：${tile}`); renderAiGame(); }
     function aiDiscard(tile){ const g=state.aiGame; if(g.winner != null || g.currentPlayer!==0 || g.phase!=='discard') return; if(!g.players[0].includes(tile)) return; g.players[0]=sortHand(removeOne(g.players[0],tile)); g.pendingDiscard=tile; g.pendingFrom=0; g.phase='claim_ai'; g.log=appendLog(g.log, `你打出：${tile}`); const immediate=checkWinner(g); if(immediate){ state.aiGame=finishGame(g,immediate); return renderAiGame(); } aiRespond(); }
     function aiRespond(){ const g=state.aiGame; const aiHand=g.players[1]; const aiCount=countMap(aiHand)[g.pendingDiscard]||0; if(aiCount>=2){ const claimed=sortHand([...aiHand, g.pendingDiscard]); const taken=g.pendingDiscard; const discard=aiPickDiscard(claimed); g.players[1]=sortHand(removeOne(claimed,discard)); g.pendingDiscard=discard; g.pendingFrom=1; g.currentPlayer=0; g.phase='claim_player'; g.log=appendLog(g.log, `AI吃进 ${taken}，随后打出：${discard}`); const immediate=checkWinner(g); if(immediate) state.aiGame=finishGame(g,immediate); return renderAiGame(); } aiTurn(); }
@@ -253,7 +253,7 @@
     function aiClaim(){ const g=state.aiGame; if(g.winner != null || g.phase!=='claim_player') return; const count=countMap(g.players[0])[g.pendingDiscard]||0; if(count<2) return; g.players[0]=sortHand([...g.players[0], g.pendingDiscard]); g.currentPlayer=0; g.phase='discard'; g.log=appendLog(g.log, `你吃进 ${g.pendingDiscard}，请再打出一张牌。`); renderAiGame(); }
     function aiPass(){ const g=state.aiGame; if(g.winner != null || g.phase!=='claim_player') return; g.phase='draw'; g.currentPlayer=0; g.log=appendLog(g.log, '你选择过，轮到你摸牌。'); renderAiGame(); }
     function renderAiGame(){
-      const g=state.aiGame; const myHand=sortHand(g.players[0]); const oppHand=g.players[1]; const myInfo=scoreHand(myHand); const oppInfo=scoreHand(oppHand); const canDraw=g.phase==='draw'&&g.currentPlayer===0&&g.winner == null; const canDiscard=g.phase==='discard'&&g.currentPlayer===0&&g.winner===null; const canClaim=aiCanClaim(g); const canPass=g.phase==='claim_player'&&g.winner===null;
+      const g=state.aiGame; const myHand=sortHand(g.players[0]); const oppHand=g.players[1]; const myInfo=scoreHand(myHand); const oppInfo=scoreHand(oppHand); const canDraw=g.phase==='draw'&&g.currentPlayer===0&&g.winner == null; const canDiscard=g.phase==='discard'&&g.currentPlayer===0&&g.winner == null; const canClaim=aiCanClaim(g); const canPass=g.phase==='claim_player'&&g.winner == null;
       $('gameMini').textContent='AI MATCH'; $('modeBadge').textContent='AI版'; $('gameSubtitle').textContent='你与 AI 对战。牌面为繁体，其余说明为简体。';
       $('myLabel').textContent='你的分数'; $('oppLabel').textContent='AI分数'; $('oppAreaTitle').textContent='AI暗牌区'; $('finalMyLabel').textContent='你的分数'; $('finalOppLabel').textContent='AI分数';
       $('resultText').textContent=aiResultText(g);
@@ -316,4 +316,3 @@
   </script>
 </body>
 </html>
-
