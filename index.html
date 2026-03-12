@@ -255,6 +255,7 @@
     function removeOne(hand,tile){ const idx=hand.indexOf(tile); if(idx===-1) return [...hand]; const copy=[...hand]; copy.splice(idx,1); return copy; }
     function appendLog(prev,message){ return [message,...prev].slice(0,16); }
     function isGameOver(winner){ return winner === 0 || winner === 1 || winner === 'draw'; }
+
     function checkWinner(game){
       if(game.roundCount < 2) return null;
       const a=scoreHand(game.players[0]);
@@ -263,6 +264,7 @@
       if(b.quads.length>=2) return { winner:1, reason:'玩家二率先凑齐两组四张相同牌。' };
       return null;
     }
+
     function settleByScore(game){
       const a=scoreHand(game.players[0]);
       const b=scoreHand(game.players[1]);
@@ -270,6 +272,7 @@
       if(b.total>a.total) return { winner:1, reason:'牌墙结束，按分数结算，玩家二获胜。' };
       return { winner:'draw', reason:'牌墙结束，双方平局。' };
     }
+
     function finishGame(game,result){
       game.winner=result.winner;
       game.resultReason=result.reason;
@@ -308,7 +311,7 @@
     function tileType(tile){ if(FLOWER_TILES.includes(tile)) return 'dark'; if(['中','發'].includes(tile)) return 'red'; if(tile==='白') return 'dark'; if(HONOR_TILES.includes(tile)) return 'dark'; if(tile.includes('萬')) return 'red'; if(tile.includes('條')) return 'green'; return 'blue'; }
     function tileHtml(tile,clickable){ const type=tileType(tile); const main=tile.length===2?tile[1]:tile; const sub=tile.length===2?tile[0]:(tile==='白'?'□':''); const cls=type==='red'?'tile-red':type==='green'?'tile-green':type==='blue'?'tile-blue':'tile-dark'; return `<button class="tile ${clickable?'tile-clickable':''}" data-tile="${tile}"><div class="tile-main ${cls}">${main}</div><div class="tile-sub ${cls}">${sub}</div></button>`; }
 
-    // ---------- AI MODE ----------
+    // AI
     function aiPickDiscard(hand){
       const map=countMap(hand);
       const sorted=sortHand(hand);
@@ -354,7 +357,7 @@
       g.players[0]=sortHand([...g.players[0], tile]);
       g.wall=g.wall.slice(1);
       g.phase='discard';
-      g.log=appendLog(g.log, `你摸到：${tile}`);
+      g.log=appendLog(g.log, `你摸了一张牌。`);
       renderAiGame();
     }
 
@@ -484,7 +487,7 @@
       show('game');
     }
 
-    // ---------- ONLINE MODE ----------
+    // ONLINE
     function roomRef(){ return ref(db, `mahjong_rooms/${state.roomCode}`); }
     function playersCount(room){ return room?.meta?.players ? Object.keys(room.meta.players).length : 0; }
 
@@ -593,7 +596,7 @@
         g.players[state.mySeat]=sortHand([...g.players[state.mySeat], tile]);
         g.wall=g.wall.slice(1);
         g.phase='discard';
-        g.log=appendLog(g.log, `${state.mySeat===0?'玩家一':'玩家二'}摸到：${tile}`);
+        g.log=appendLog(g.log, `${state.mySeat===0?'玩家一':'玩家二'}摸了一张牌。`);
         room.game=g;
         return room;
       });
@@ -708,7 +711,6 @@
       show('game');
     }
 
-    // ---------- EVENTS ----------
     $('startAiBtn').addEventListener('click', startAiGame);
     $('showOnlinePanelBtn').addEventListener('click', ()=>toggleOnlinePanel(true));
     $('hideOnlinePanelBtn').addEventListener('click', ()=>toggleOnlinePanel(false));
