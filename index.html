@@ -349,17 +349,24 @@
         !isGameOver(g.winner);
     }
 
-    function aiDraw(){
-      const g=state.aiGame;
-      if(isGameOver(g.winner) || g.currentPlayer!==0 || g.phase!=='draw') return;
-      if(g.wall.length===0){ state.aiGame=finishGame(g,settleByScore(g)); return renderAiGame(); }
-      const tile=g.wall[0];
-      g.players[0]=sortHand([...g.players[0], tile]);
-      g.wall=g.wall.slice(1);
-      g.phase='discard';
-      g.log=appendLog(g.log, `你摸了一张牌。`);
-      renderAiGame();
-    }
+function aiDraw(){
+  const g = state.aiGame;
+  if (isGameOver(g.winner) || g.currentPlayer !== 0 || g.phase !== 'draw') return;
+  if (g.wall.length === 0) {
+    state.aiGame = finishGame(g, settleByScore(g));
+    return renderAiGame();
+  }
+
+  const tile = g.wall[0];
+  g.players[0] = sortHand([...g.players[0], tile]);
+  g.wall = g.wall.slice(1);
+  g.phase = 'discard';
+
+  // 这里只记录“摸了一张牌”，绝不记录具体牌名
+  g.log = appendLog(g.log, '你摸了一张牌。');
+
+  renderAiGame();
+}
 
     function aiDiscard(tile){
       const g=state.aiGame;
@@ -587,20 +594,30 @@
       });
     }
 
-    async function onlineDraw(){
-      await transactionalUpdate(room => {
-        const g=room.game;
-        if(isGameOver(g.winner) || g.currentPlayer!==state.mySeat || g.phase!=='draw') return room;
-        if(g.wall.length===0){ room.game=finishGame(g, settleByScore(g)); return room; }
-        const tile=g.wall[0];
-        g.players[state.mySeat]=sortHand([...g.players[state.mySeat], tile]);
-        g.wall=g.wall.slice(1);
-        g.phase='discard';
-        g.log=appendLog(g.log, `${state.mySeat===0?'玩家一':'玩家二'}摸了一张牌。`);
-        room.game=g;
-        return room;
-      });
+   async function onlineDraw(){
+  await transactionalUpdate(room => {
+    const g = room.game;
+    if (isGameOver(g.winner) || g.currentPlayer !== state.mySeat || g.phase !== 'draw') return room;
+    if (g.wall.length === 0) {
+      room.game = finishGame(g, settleByScore(g));
+      return room;
     }
+
+    const tile = g.wall[0];
+    g.players[state.mySeat] = sortHand([...g.players[state.mySeat], tile]);
+    g.wall = g.wall.slice(1);
+    g.phase = 'discard';
+
+    // 这里只记录“摸了一张牌”，绝不记录具体牌名
+    g.log = appendLog(
+      g.log,
+      `${state.mySeat === 0 ? '玩家一' : '玩家二'}摸了一张牌。`
+    );
+
+    room.game = g;
+    return room;
+  });
+}
 
     async function onlineDiscard(tile){
       await transactionalUpdate(room => {
